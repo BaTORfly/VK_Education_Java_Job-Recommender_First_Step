@@ -96,7 +96,7 @@ bob java 10
 - JDK 17 
 - Gradle 8.14.2
 
-# Описание ТЗ
+# Описание решения
 ## 🚀 Особенности
 
 - ✅ **Современный Java 17**: records, switch expressions, Stream API, текстовые блоки
