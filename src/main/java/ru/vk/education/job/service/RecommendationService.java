@@ -49,7 +49,6 @@ public class RecommendationService {
                 .map(MatchResult::job)
                 .toList();
     }
-
     /**
      * Проверка: существует ли пользователь в системе.
      * Вынесено для удобства CLI (чтобы не дублировать логику).

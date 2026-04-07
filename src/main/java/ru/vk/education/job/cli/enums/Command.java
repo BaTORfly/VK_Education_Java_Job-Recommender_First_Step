@@ -9,6 +9,7 @@ public enum Command {
     JOB,            // job <title> --company=... --tags=... --exp=...
     JOB_LIST,       // job-list
     SUGGEST,        // suggest <username>
+    HISTORY,        // history
     EXIT,           // exit
     UNKNOWN
 }

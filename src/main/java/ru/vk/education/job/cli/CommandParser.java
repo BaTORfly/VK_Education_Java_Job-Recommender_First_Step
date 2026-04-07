@@ -61,6 +61,7 @@ public class CommandParser {
             case "job" -> Command.JOB;
             case "job-list" -> Command.JOB_LIST;
             case "suggest" -> Command.SUGGEST;
+            case "history" -> Command.HISTORY;
             case "exit" -> Command.EXIT;
             default -> Command.UNKNOWN;
         };

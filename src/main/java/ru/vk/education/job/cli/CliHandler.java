@@ -1,8 +1,10 @@
 package ru.vk.education.job.cli;
 
+import ru.vk.education.job.cli.enums.Command;
 import ru.vk.education.job.domain.Job;
 import ru.vk.education.job.domain.User;
 import ru.vk.education.job.repo.InMemoryRepository;
+import ru.vk.education.job.service.FileService;
 import ru.vk.education.job.service.RecommendationService;
 
 import java.util.Arrays;
@@ -15,10 +17,14 @@ public class CliHandler {
 
     private final InMemoryRepository repository;
     private final RecommendationService recommendationService;
+    private final FileService fileService; // added for history command
 
-    public CliHandler(InMemoryRepository repository, RecommendationService recommendationService) {
+    public CliHandler(InMemoryRepository repository,
+                      RecommendationService recommendationService,
+                      FileService fileService) {
         this.repository = repository;
         this.recommendationService = recommendationService;
+        this.fileService = fileService;
     }
 
     /**
@@ -32,9 +38,23 @@ public class CliHandler {
             case JOB -> handleJob(cmd);
             case JOB_LIST -> handleJobList();
             case SUGGEST -> handleSuggest(cmd);
+            case HISTORY -> handleHistory();
             case EXIT -> false;
             case UNKNOWN -> true;
         };
+    }
+
+    /**
+     * Тихое выполнение при загрузке из файла.
+     * Выполнение только создания сущностей (Пользователь, Вакансия)
+     * @param cmd
+     */
+    public void handleSilent(ParsedCommand cmd){
+        if (cmd.type() == Command.USER){
+            handleUser(cmd);
+        } else if (cmd.type() == Command.JOB){
+            handleJob(cmd);
+        }
     }
 
     private boolean handleUser(ParsedCommand cmd) {
@@ -84,6 +104,14 @@ public class CliHandler {
         List<Job> recommendations = recommendationService.findTopMatches(cmd.primaryArg());
         OutputFormatter.printRecommendations(recommendations);
 
+        return true;
+    }
+
+    private boolean handleHistory(){
+        List<String> commands = fileService.loadCommands();
+        for (String command : commands) {
+            System.out.println(command);
+        }
         return true;
     }
 

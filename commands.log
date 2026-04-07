@@ -1,0 +1,6 @@
+user alice --skills=java --exp=2
+user-list
+user bob --skills=ml --exp=2
+user-list
+history
+history
