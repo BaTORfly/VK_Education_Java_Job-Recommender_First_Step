@@ -10,11 +10,6 @@ import java.util.Map;
  */
 public class CommandParser {
 
-    /**
-     * Парсит входную строку в структурированную команду.
-     * @param line входная строка (например: "user alice --skills=java,ml --exp=2")
-     * @return ParsedCommand с типом команды и аргументами
-     */
     public static ParsedCommand parse(String line) {
         if (line == null || line.trim().isEmpty()) {
             return new ParsedCommand(Command.UNKNOWN, null, Map.of());
@@ -30,7 +25,6 @@ public class CommandParser {
         String commandWord = parts[0].toLowerCase();
         Command type = parseCommandType(commandWord);
 
-
         if (type == Command.EXIT) {
             return new ParsedCommand(Command.EXIT, null, Map.of());
         }
@@ -39,7 +33,6 @@ public class CommandParser {
             return new ParsedCommand(type, null, Map.of());
         }
 
-
         String primaryArg = (parts.length > 1 && !parts[1].startsWith("--"))
                 ? parts[1]
                 : null;
@@ -47,7 +40,18 @@ public class CommandParser {
         Map<String, String> flags = new HashMap<>();
         for (int i = 1; i < parts.length; i++) {
             if (parts[i].startsWith("--")) {
-                parseFlag(parts[i], flags);
+                int eqIndex = parts[i].indexOf('=');
+
+                if (eqIndex > 2) {
+                    String key = parts[i].substring(2, eqIndex);
+                    String value = parts[i].substring(eqIndex + 1);
+                    flags.put(key, value);
+                } else if (i + 1 < parts.length) {
+                    String key = parts[i].substring(2);
+                    String value = parts[i + 1];
+                    flags.put(key, value);
+                    i++;
+                }
             }
         }
 
@@ -62,18 +66,9 @@ public class CommandParser {
             case "job-list" -> Command.JOB_LIST;
             case "suggest" -> Command.SUGGEST;
             case "history" -> Command.HISTORY;
+            case "stat" -> Command.STAT;
             case "exit" -> Command.EXIT;
             default -> Command.UNKNOWN;
         };
-    }
-
-    private static void parseFlag(String flagPart, Map<String, String> flags) {
-
-        int eqIndex = flagPart.indexOf('=');
-        if (eqIndex > 2) {
-            String key = flagPart.substring(2, eqIndex);
-            String value = flagPart.substring(eqIndex + 1);
-            flags.put(key, value);
-        }
     }
 }

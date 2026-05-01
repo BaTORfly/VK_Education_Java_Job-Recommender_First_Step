@@ -11,5 +11,6 @@ public enum Command {
     SUGGEST,        // suggest <username>
     HISTORY,        // history
     EXIT,           // exit
+    STAT,
     UNKNOWN
 }

@@ -6,8 +6,10 @@ import ru.vk.education.job.domain.User;
 import ru.vk.education.job.repo.InMemoryRepository;
 import ru.vk.education.job.service.FileService;
 import ru.vk.education.job.service.RecommendationService;
+import ru.vk.education.job.service.StatisticsService;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -18,13 +20,16 @@ public class CliHandler {
     private final InMemoryRepository repository;
     private final RecommendationService recommendationService;
     private final FileService fileService; // added for history command
+    private final StatisticsService statisticsService;
 
     public CliHandler(InMemoryRepository repository,
                       RecommendationService recommendationService,
-                      FileService fileService) {
+                      FileService fileService,
+                      StatisticsService statisticsService) {
         this.repository = repository;
         this.recommendationService = recommendationService;
         this.fileService = fileService;
+        this.statisticsService = statisticsService;
     }
 
     /**
@@ -39,9 +44,27 @@ public class CliHandler {
             case JOB_LIST -> handleJobList();
             case SUGGEST -> handleSuggest(cmd);
             case HISTORY -> handleHistory();
+            case STAT -> handleStat(cmd);
             case EXIT -> false;
             case UNKNOWN -> true;
         };
+    }
+
+    private boolean handleStat(ParsedCommand cmd) {
+        if (cmd.hasFlag("exp")){
+            int minExp = parseInt(cmd.getFlag("exp", "0"));
+            List<Job> jobs = statisticsService.findJobsWithMinExp(minExp);
+            OutputFormatter.printJobs(jobs);
+        } else if (cmd.hasFlag("match")) {
+            int minMatches = parseInt(cmd.getFlag("match", "0"));
+            List<User> users = statisticsService.findUsersWithMinMatches(minMatches);
+            OutputFormatter.printUsers(users);
+        } else if (cmd.hasFlag("top-skills")) {
+            int n = parseInt(cmd.getFlag("top-skills", "0"));
+            List<String> skills = statisticsService.findTopSkills(n);
+            skills.forEach(System.out::println);
+        }
+        return true;
     }
 
     /**
@@ -92,7 +115,7 @@ public class CliHandler {
     }
 
     private boolean handleJobList() {
-        OutputFormatter.printJobs(repository.getAllJobs());
+        OutputFormatter.printJobs(repository.getAllJobs().stream().sorted(Comparator.comparing(Job::title)).toList());
         return true;
     }
 
